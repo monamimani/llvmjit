@@ -62,7 +62,7 @@ jobs:
     - task: marcelo-formentao.github-tools.github-release-publish-task.GitHubReleasePublish@0
       displayName: 'GitHub Release $(Build.Repository.Name)_v$(Build.BuildId)'
       inputs:
-        githubEndpoint: monamimani
+        githubEndpoint: GitHub monamimani
         githubRepository: 'monamimani/$(Build.Repository.Name)'
         githubTag: '$(Build.Repository.Name)_v$(Build.BuildId)'
         githubReleaseTitle: '$(Build.Repository.Name)_v$(Build.BuildId)'

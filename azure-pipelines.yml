@@ -63,7 +63,7 @@ jobs:
       displayName: 'GitHub Release $(Build.Repository.Name)_v$(Build.BuildId)'
       inputs:
         githubEndpoint: 'GitHub monamimani'
-        githubRepository: 'monamimani/$(Build.Repository.Name)'
+        githubRepository: '$(Build.Repository.Name)'
         githubTag: '$(Build.Repository.Name)_v$(Build.BuildId)'
         githubReleaseTitle: '$(Build.Repository.Name)_v$(Build.BuildId)'
         githubReleaseNotes: "Build commit id $(Build.SourceVersion)"

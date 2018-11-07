@@ -1,0 +1,71 @@
+name: llvmjit
+
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/yaml-schema?view=vsts&tabs=schema
+
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    exclude:
+    - README.md
+
+resources:
+- repo: self
+
+variables:
+  BuidDir: 'build'
+
+jobs:
+- job: GenerateAndBuild
+  timeoutInMinutes: 240
+
+  pool:
+    vmImage: 'VS2017-Win2016'
+
+  strategy:
+    maxParallel: 2
+    matrix:
+      debugJob:
+        configuration: debug
+      releaseJob:
+        configuration: release
+
+  steps:
+    # - checkout: self # I think I don't need it because the get source of the ui take over when it is commented out.
+    #   submodules: true
+
+    - script: |
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+        set cc=cl
+        set cxx=cl
+        CMake -GNinja -H.\llvm -B.\$(BuidDir) -DCMAKE_INSTALL_PREFIX=$(Build.BinariesDirectory) -DCMAKE_BUILD_TYPE=$(configuration) -DLLVM_TARGETS_TO_BUILD=X86 -DLLVM_ENABLE_WARNINGS=OFF -DLLVM_ENABLE_CXX1Z=ON -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_TOOLS=OFF
+      displayName: CMake generation
+
+    - script: |
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+        CMake --build .\$(BuidDir) --target install
+      displayName: CMake build-install
+      timeoutInMinutes: 240
+
+- job: ArchiveAndPublish
+  pool:
+    vmImage: 'VS2017-Win2016'
+  dependsOn: GenerateAndBuild
+  condition: succeeded()
+  steps:
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: $(Build.stagingDirectory)
+        archiveFile: $(Build.ArtifactStagingDirectory)\\$(Build.BuildId).zip
+
+    - task: marcelo-formentao.github-tools.github-release-publish-task.GitHubReleasePublish@0
+      displayName: 'GitHub Release $(Build.Repository.Name)_v$(Build.BuildId)'
+      inputs:
+        githubEndpoint: monamimani
+        githubRepository: 'monamimani/$(Build.Repository.Name)'
+        githubTag: '$(Build.Repository.Name)_v$(Build.BuildId)'
+        githubReleaseTitle: '$(Build.Repository.Name)_v$(Build.BuildId)'
+        githubReleaseNotes: "Build commit id $(Build.SourceVersion)"
+        githubReleaseDraft: false
+        githubReleaseAsset: '$(build.BinariesDirectory)\\$(Build.BuildId).zip'

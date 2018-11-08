@@ -23,14 +23,13 @@ jobs:
   pool:
     vmImage: 'VS2017-Win2016'
 
-  # strategy:
-  #   maxParallel: 2
-  #   matrix:
-  #     debugJob:
-  #       configuration: debug
-  #     releaseJob:
-  #       configuration: release
-  # $(configuration)
+  strategy:
+    maxParallel: 2
+    matrix:
+      debugJob:
+        configuration: debug
+      releaseJob:
+        configuration: release
 
   steps:
     # - checkout: self # I think I don't need it because the get source of the ui take over when it is commented out.
@@ -40,7 +39,7 @@ jobs:
         call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
         set cc=cl
         set cxx=cl
-        CMake -GNinja -H.\llvm -B.\$(BuidDir) -DCMAKE_INSTALL_PREFIX=$(Build.BinariesDirectory) -DCMAKE_BUILD_TYPE=release,debug -DLLVM_TARGETS_TO_BUILD=X86 -DLLVM_ENABLE_WARNINGS=OFF -DLLVM_ENABLE_CXX1Z=ON -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_TOOLS=OFF
+        CMake -GNinja -H.\llvm -B.\$(BuidDir) -DCMAKE_INSTALL_PREFIX=$(Build.BinariesDirectory) -DCMAKE_BUILD_TYPE=$(configuration) -DLLVM_TARGETS_TO_BUILD=X86 -DLLVM_ENABLE_WARNINGS=OFF -DLLVM_ENABLE_CXX1Z=ON -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_TOOLS=OFF
       displayName: CMake generation
 
     - script: |
@@ -51,7 +50,7 @@ jobs:
     - task: ArchiveFiles@2
       inputs:
         rootFolderOrFile: $(Build.BinariesDirectory)
-        archiveFile: $(Build.ArtifactStagingDirectory)\\$(Build.BuildId).zip
+        archiveFile: $(Build.ArtifactStagingDirectory)\\$(configuration)_$(Build.BuildId).zip
 
     - task: marcelo-formentao.github-tools.github-release-publish-task.GitHubReleasePublish@0
       displayName: 'GitHub Release $(Build.Repository.Name)_v$(Build.BuildId)'
@@ -62,4 +61,4 @@ jobs:
         githubReleaseTitle: '$(Build.Repository.Name)_v$(Build.BuildId)'
         githubReleaseNotes: "Build commit id $(Build.SourceVersion)"
         githubReleaseDraft: false
-        githubReleaseAsset: '$(Build.ArtifactStagingDirectory)\\$(Build.BuildId).zip'
+        githubReleaseAsset: '$(Build.ArtifactStagingDirectory)\\$(configuration)_$(Build.BuildId).zip'

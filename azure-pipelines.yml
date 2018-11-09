@@ -17,6 +17,14 @@ variables:
   BuidDir: 'build'
 
 jobs:
+- job: Get source code
+  pool:
+    vmImage: 'VS2017-Win2016'
+  
+  steps:
+    - checkout: self
+      submodules: true
+
 - job: GenerateAndBuild
   timeoutInMinutes: 240
 
@@ -32,6 +40,7 @@ jobs:
         configuration: release
 
   steps:
+  - checkout: none
     # - checkout: self # I think I don't need it because the get source of the ui take over when it is commented out.
     #   submodules: true
 

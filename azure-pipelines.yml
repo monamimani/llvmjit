@@ -96,8 +96,8 @@ jobs:
     inputs:
       githubEndpoint: 'GitHub monamimani'
       githubRepository: monamimani/llvmjit
-      githubTag: 'llvmJit_v$(Build.BuildNumber)'
-      githubReleaseTitle: 'llvmJit_v$(Build.BuildNumber)'
+      githubTag: 'llvmJit_v$(Build.BuildId)'
+      githubReleaseTitle: 'llvmJit_v$(Build.BuildId)'
       githubReleaseNotes: "Build commit id $(Build.SourceVersion)"
       githubReleaseDraft: false
-      githubReleaseAsset: '$(System.ArtifactsDirectory)/llvmJit_$(Build.BuildId).zip'
+      githubReleaseAsset: '$(System.ArtifactsDirectory)/llvmJit_v$(Build.BuildId).zip'

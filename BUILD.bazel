@@ -1,0 +1,26 @@
+config_setting(
+    name = "release_build",
+    values = {
+	"compilation_mode": "fastbuild"
+	},
+)
+
+config_setting(
+    name = "debug_build",
+    values = {
+        "compilation_mode": "dbg",
+    },
+)
+
+cc_library(
+  name = "llvmjit",
+  includes=["include"],
+  hdrs=["llvmjit/include"],
+  #srcs=glob(["lib/**/*.lib"]),
+  srcs=select({
+        ":release_build": glob(["release/lib/**/*.lib"]),
+        ":debug_build": glob(["debug/lib/**/*.lib"])],
+    })
+  visibility = ["//visibility:public"],
+  copts=["/Iexternal/llvmjit/include"]
+  )

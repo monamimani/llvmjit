@@ -55,7 +55,7 @@ jobs:
   condition: succeeded()
   variables:
     ArtifactPathRelease: '$(Build.StagingDirectory)/release/$(Build.Repository.Name)_release_v$(Build.BuildId)'
-    ArtifactNameDebug: '$(Build.StagingDirectory)/debug/$(Build.Repository.Name)_debug_v$(Build.BuildId)'
+    ArtifactPathDebug: '$(Build.StagingDirectory)/debug/$(Build.Repository.Name)_debug_v$(Build.BuildId)'
   pool:
     demands: npm
 

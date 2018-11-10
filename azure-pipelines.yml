@@ -50,7 +50,7 @@ jobs:
 
       ArtifactName: '$(Build.Repository.Name)_$(BuildConfiguration)_v$(Build.BuildId)'
 
--job: Archive_Publish
+- job: Archive_Publish
   dependsOn: Generate_Build_Install
   condition: succeeded()
   variables:

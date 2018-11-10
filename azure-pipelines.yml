@@ -82,6 +82,7 @@ jobs:
       robocopy $(ArtifactPathDebug)/lib $(System.ArtifactsDirectory)/llvmJit/debug/lib /s
       robocopy $(ArtifactPathRelease)/bin $(System.ArtifactsDirectory)/llvmJit/release/bin /s
       robocopy $(ArtifactPathDebug)/bin $(System.ArtifactsDirectory)/llvmJit/debug/bin /s
+      IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL = 0
     displayName: Copy files
 
   - task: ArchiveFiles@2

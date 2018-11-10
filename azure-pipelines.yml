@@ -60,7 +60,7 @@ jobs:
     demands: npm
 
   steps:
-  - checkout: non
+  - checkout: none
     submodules: true
 
   - task: DownloadBuildArtifacts@0

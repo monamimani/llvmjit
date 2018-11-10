@@ -17,15 +17,7 @@ variables:
   BuidDir: 'build'
 
 jobs:
-- job: GetSourceCode
-  pool:
-    vmImage: 'VS2017-Win2016'
-  
-  steps:
-    - checkout: self
-      submodules: true
-
-- job: GenerateAndBuild
+- job: Generate_Build_Install
   timeoutInMinutes: 240
 
   pool:
@@ -40,34 +32,71 @@ jobs:
         configuration: release
 
   steps:
-    - checkout: none
-    # - checkout: self # I think I don't need it because the get source of the ui take over when it is commented out.
-    #   submodules: true
+  - checkout: self
+    submodules: true
 
-    - script: |
-        call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-        set cc=cl
-        set cxx=cl
-        CMake -GNinja -H.\llvm -B.\$(BuidDir) -DCMAKE_INSTALL_PREFIX=$(Build.BinariesDirectory) -DCMAKE_BUILD_TYPE=$(configuration) -DLLVM_TARGETS_TO_BUILD=X86 -DLLVM_ENABLE_WARNINGS=OFF -DLLVM_ENABLE_CXX1Z=ON -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_TOOLS=OFF
-      displayName: CMake generation
+  - script: |
+      call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+      set cc=cl
+      set cxx=cl
+      CMake -GNinja -H.\llvm -B.\$(BuidDir) -DCMAKE_INSTALL_PREFIX=$(Build.BinariesDirectory) -DCMAKE_BUILD_TYPE=$(configuration) -DLLVM_TARGETS_TO_BUILD=X86 -DLLVM_ENABLE_WARNINGS=OFF -DLLVM_ENABLE_CXX1Z=ON -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_TOOLS=OFF
+      CMake --build .\$(BuidDir) --target install
+    displayName: CMake Gen-Build-Install
 
-    - script: |
-        call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-        CMake --build .\$(BuidDir) --target install
-      displayName: CMake build-install
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: $(Build.Repository.Name)_$(BuildConfiguration)_v$(Build.BuildId)'
+    inputs:
+      PathtoPublish: '$(Build.BinariesDirectory)'
 
-    - task: ArchiveFiles@2
-      inputs:
-        rootFolderOrFile: $(Build.BinariesDirectory)
-        archiveFile: $(Build.ArtifactStagingDirectory)\\$(configuration)_$(Build.BuildId).zip
+      ArtifactName: '$(Build.Repository.Name)_$(BuildConfiguration)_v$(Build.BuildId)'
 
-    - task: marcelo-formentao.github-tools.github-release-publish-task.GitHubReleasePublish@0
-      displayName: 'GitHub Release $(Build.Repository.Name)_v$(Build.BuildId)'
-      inputs:
-        githubEndpoint: 'GitHub monamimani'
-        githubRepository: '$(Build.Repository.Name)'
-        githubTag: '$(Build.Repository.Name)_v$(Build.BuildId)'
-        githubReleaseTitle: '$(Build.Repository.Name)_v$(Build.BuildId)'
-        githubReleaseNotes: "Build commit id $(Build.SourceVersion)"
-        githubReleaseDraft: false
-        githubReleaseAsset: '$(Build.ArtifactStagingDirectory)\\$(configuration)_$(Build.BuildId).zip'
+-job: Archive_Publish
+  dependsOn: Generate_Build_Install
+  condition: succeeded()
+  variables:
+    ArtifactPathRelease: '$(Build.StagingDirectory)/release/$(Build.Repository.Name)_release_v$(Build.BuildId)'
+    ArtifactNameDebug: '$(Build.StagingDirectory)/debug/$(Build.Repository.Name)_debug_v$(Build.BuildId)'
+  pool:
+    demands: npm
+
+  steps:
+  - checkout: non
+    submodules: true
+
+  - task: DownloadBuildArtifacts@0
+    displayName: 'Download Build Artifacts Debug'
+    inputs:
+      artifactName: '$(Build.Repository.Name)_debug_v$(Build.BuildId)'
+      downloadPath: '$(Build.StagingDirectory)/debug'
+
+
+  - task: DownloadBuildArtifacts@0
+    displayName: 'Download Build Artifacts release'
+    inputs:
+      artifactName: '$(Build.Repository.Name)_release_v$(Build.BuildId)'
+      downloadPath: '$(Build.StagingDirectory)/release'
+
+  - script: |
+    robocopy '$(ArtifactPathRelease)/include' '$(System.ArtifactsDirectory)/include' /s
+    robocopy '$(ArtifactPathRelease)/lib' '$(System.ArtifactsDirectory)/release/lib' /s
+    robocopy '$(ArtifactPathDebug)/lib' '$(System.ArtifactsDirectory)/debug/lib' /s
+    robocopy '$(ArtifactPathRelease)/bin' '$(System.ArtifactsDirectory)/release/bin' /s
+    robocopy '$(ArtifactPathDebug)/bin' '$(System.ArtifactsDirectory)/debug/bin' /s
+    displayName: Copy files
+
+  - task: ArchiveFiles@2
+    displayName: 'Archive $(System.ArtifactsDirectory)'
+    inputs:
+      rootFolderOrFile: $(System.ArtifactsDirectory)
+      archiveFile: '$(System.ArtifactsDirectory)/llvmJit_$(Build.BuildId).zip'
+
+  - task: marcelo-formentao.github-tools.github-release-publish-task.GitHubReleasePublish@0
+    displayName: 'GitHub Release $(Build.Repository.Name)_v$(Build.BuildId)'
+    inputs:
+      githubEndpoint: 'GitHub monamimani'
+      githubRepository: monamimani/llvmjit
+      githubTag: 'llvmJit_v$(Build.BuildNumber)'
+      githubReleaseTitle: 'llvmJit_v$(Build.BuildNumber)'
+      githubReleaseNotes: "Build commit id $(Build.SourceVersion)"
+      githubReleaseDraft: false
+      githubReleaseAsset: '$(System.ArtifactsDirectory)/llvmJit_$(Build.BuildId).zip'

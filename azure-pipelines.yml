@@ -77,11 +77,11 @@ jobs:
       downloadPath: '$(Build.StagingDirectory)/release'
 
   - script: |
-      robocopy '$(ArtifactPathRelease)/include' '$(System.ArtifactsDirectory)/llvmJit/include' /s
-      robocopy '$(ArtifactPathRelease)/lib' '$(System.ArtifactsDirectory)/llvmJit/release/lib' /s
-      robocopy '$(ArtifactPathDebug)/lib' '$(System.ArtifactsDirectory)/llvmJit/debug/lib' /s
-      robocopy '$(ArtifactPathRelease)/bin' '$(System.ArtifactsDirectory)/llvmJit/release/bin' /s
-      robocopy '$(ArtifactPathDebug)/bin' '$(System.ArtifactsDirectory)/llvmJit/debug/bin' /s
+      robocopy $(ArtifactPathRelease)/include $(System.ArtifactsDirectory)/llvmJit/include /s
+      robocopy '$(ArtifactPathRelease)/lib $(System.ArtifactsDirectory)/llvmJit/release/lib /s
+      robocopy '$(ArtifactPathDebug)/lib $(System.ArtifactsDirectory)/llvmJit/debug/lib /s
+      robocopy '$(ArtifactPathRelease)/bin $(System.ArtifactsDirectory)/llvmJit/release/bin /s
+      robocopy '$(ArtifactPathDebug)/bin $(System.ArtifactsDirectory)/llvmJit/debug/bin /s
     displayName: Copy files
 
   - task: ArchiveFiles@2

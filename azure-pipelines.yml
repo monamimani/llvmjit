@@ -89,7 +89,7 @@ jobs:
     displayName: 'Archive $(System.ArtifactsDirectory)'
     inputs:
       rootFolderOrFile: $(System.ArtifactsDirectory)
-      archiveFile: '$(System.ArtifactsDirectory)/llvmJit_$(Build.BuildId).zip'
+      archiveFile: '$(System.ArtifactsDirectory)/llvmJit_v$(Build.BuildId).zip'
 
   - task: marcelo-formentao.github-tools.github-release-publish-task.GitHubReleasePublish@0
     displayName: 'GitHub Release $(Build.Repository.Name)_v$(Build.BuildId)'

@@ -63,6 +63,12 @@ jobs:
   - checkout: none
     submodules: true
 
+  - script: |
+      echo $(Build.BinariesDirectory)/debug
+      echo $(Build.BinariesDirectory)/release
+      echo $(ArtifactPathRelease)
+      echo $(ArtifactPathDebug)
+
   - task: DownloadBuildArtifacts@0
     displayName: 'Download Build Artifacts Debug'
     inputs:
@@ -75,6 +81,12 @@ jobs:
     inputs:
       artifactName: '$(Build.Repository.Name)_release_v$(Build.BuildId)'
       downloadPath: '$(Build.BinariesDirectory)/release'
+
+  - script: |
+      cd $(Build.BinariesDirectory)/debug
+      dir
+      cd $(Build.BinariesDirectory)/release
+      dir
 
   - script: |
       robocopy $(ArtifactPathRelease)/include $(System.ArtifactsDirectory)/llvmJit/include /s

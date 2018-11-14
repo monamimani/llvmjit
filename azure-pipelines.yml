@@ -54,8 +54,8 @@ jobs:
   dependsOn: Generate_Build_Install
   condition: succeeded()
   variables:
-    ArtifactPathRelease: '$(Build.BinariesDirectory)/release/$(Build.Repository.Name)_release_v$(Build.BuildId)'
-    ArtifactPathDebug: '$(Build.BinariesDirectory)/debug/$(Build.Repository.Name)_debug_v$(Build.BuildId)'
+    ArtifactPathRelease: '$(Build.BinariesDirectory)/release/monamimani/$(Build.Repository.Name)_release_v$(Build.BuildId)'
+    ArtifactPathDebug: '$(Build.BinariesDirectory)/debug/monamimani/$(Build.Repository.Name)_debug_v$(Build.BuildId)'
   pool:
     demands: npm
 
@@ -68,12 +68,10 @@ jobs:
       echo $(Build.BinariesDirectory)/release
       echo $(ArtifactPathRelease)
       echo $(ArtifactPathDebug)
-      cd $(Build.BinariesDirectory)/debug
-      dir
-      cd $(Build.BinariesDirectory)/release
-      dir
+      cd $(Build.BinariesDirectory)
+      dir /s /b /a:d
       cd $(System.ArtifactsDirectory)
-      dir
+      dir /s /b /a:d
 
   - task: DownloadBuildArtifacts@0
     displayName: 'Download Build Artifacts Debug'
@@ -89,12 +87,10 @@ jobs:
       downloadPath: '$(Build.BinariesDirectory)/release'
 
   - script: |
-      cd $(Build.BinariesDirectory)/debug
-      dir
-      cd $(Build.BinariesDirectory)/release
-      dir
+      cd $(Build.BinariesDirectory)
+      dir /s /b /a:d
       cd $(System.ArtifactsDirectory)
-      dir
+      dir /s /b /a:d
 
   - script: |
       robocopy $(ArtifactPathRelease)/include $(System.ArtifactsDirectory)/llvmJit/include /s
@@ -104,6 +100,10 @@ jobs:
       robocopy $(ArtifactPathDebug)/bin $(System.ArtifactsDirectory)/llvmJit/debug/bin /s
       IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL = 0
     displayName: Copy files
+
+  - script: |
+      cd $(System.ArtifactsDirectory)
+      dir /s /b /a:d
 
   - task: ArchiveFiles@2
     displayName: 'Archive $(System.ArtifactsDirectory)'

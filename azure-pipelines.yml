@@ -44,18 +44,17 @@ jobs:
     displayName: CMake Gen-Build-Install
 
   - task: PublishBuildArtifacts@1
-    displayName: 'Publish Artifact: $(Build.Repository.Name)_$(BuildConfiguration)_v$(Build.BuildId)'
+    displayName: 'Publish Artifact: $(Build.DefinitionName)_$(BuildConfiguration)_v$(Build.BuildId)'
     inputs:
       PathtoPublish: '$(Build.BinariesDirectory)'
-
-      ArtifactName: '$(Build.Repository.Name)_$(BuildConfiguration)_v$(Build.BuildId)'
+      ArtifactName: '$(Build.DefinitionName)_$(BuildConfiguration)_v$(Build.BuildId)'
 
 - job: Archive_Publish
   dependsOn: Generate_Build_Install
   condition: succeeded()
   variables:
-    ArtifactPathRelease: '$(Build.BinariesDirectory)/release/monamimani/$(Build.Repository.Name)_release_v$(Build.BuildId)'
-    ArtifactPathDebug: '$(Build.BinariesDirectory)/debug/monamimani/$(Build.Repository.Name)_debug_v$(Build.BuildId)'
+    ArtifactPathRelease: '$(Build.BinariesDirectory)/release/$(Build.DefinitionName)_release_v$(Build.BuildId)'
+    ArtifactPathDebug: '$(Build.BinariesDirectory)/debug/$(Build.DefinitionName)_debug_v$(Build.BuildId)'
   pool:
     demands: npm
 
@@ -76,14 +75,14 @@ jobs:
   - task: DownloadBuildArtifacts@0
     displayName: 'Download Build Artifacts Debug'
     inputs:
-      artifactName: '$(Build.Repository.Name)_debug_v$(Build.BuildId)'
+      artifactName: '$(Build.DefinitionName)_debug_v$(Build.BuildId)'
       downloadPath: '$(Build.BinariesDirectory)/debug'
 
 
   - task: DownloadBuildArtifacts@0
     displayName: 'Download Build Artifacts release'
     inputs:
-      artifactName: '$(Build.Repository.Name)_release_v$(Build.BuildId)'
+      artifactName: '$(Build.DefinitionName)_release_v$(Build.BuildId)'
       downloadPath: '$(Build.BinariesDirectory)/release'
 
   - script: |
@@ -112,7 +111,7 @@ jobs:
       archiveFile: '$(System.ArtifactsDirectory)/llvmJit_v$(Build.BuildId).zip'
 
   - task: marcelo-formentao.github-tools.github-release-publish-task.GitHubReleasePublish@0
-    displayName: 'GitHub Release $(Build.Repository.Name)_v$(Build.BuildId)'
+    displayName: 'GitHub Release $(Build.DefinitionName)_v$(Build.BuildId)'
     inputs:
       githubEndpoint: 'GitHub monamimani'
       githubRepository: monamimani/llvmjit

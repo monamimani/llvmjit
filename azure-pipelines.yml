@@ -56,7 +56,7 @@ jobs:
       Write-Host $filePathList
 
       Copy-Item -Path $filePathList -Destination ".//install/lib"
-    condition: eq(variables['BuildConfiguration'], 'debug'))
+    condition: eq(variables['BuildConfiguration'], 'debug')
 
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: $(Build.DefinitionName)_$(BuildConfiguration)_v$(Build.BuildId)'

@@ -55,7 +55,7 @@ jobs:
       }
       Write-Host $filePathList
 
-      Copy-Item -Path $filePathList -Destination "$(Build.BinariesDirectory)lib"
+      Copy-Item -Path $filePathList -Destination "$(Build.BinariesDirectory)/lib"
     condition: eq(variables['BuildConfiguration'], 'debug')
 
   - task: PublishBuildArtifacts@1

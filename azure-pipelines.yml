@@ -44,18 +44,18 @@ jobs:
     displayName: CMake Gen-Build-Install
 
   - powershell: |
-      $libFileList = @(Get-Childitem -Path ".//install" -Recurse -file -filter "*.lib")
+      $libFileList = @(Get-Childitem -Path "$(Build.BinariesDirectory)" -Recurse -file -filter "*.lib")
       $pdbFileList = $libFileList | foreach {
         [io.path]::ChangeExtension($_.name, "pdb")
       } 
       Write-Host $pdbFileList
 
       $filePathList = $pdbFileList | foreach {
-        Get-ChildItem -Path ".//build" -Filter $_ -Recurse | % {$_.FullName}
+        Get-ChildItem -Path "$(BuidDir)" -Filter $_ -Recurse | % {$_.FullName}
       }
       Write-Host $filePathList
 
-      Copy-Item -Path $filePathList -Destination ".//install/lib"
+      Copy-Item -Path $filePathList -Destination "$(Build.BinariesDirectory)lib"
     condition: eq(variables['BuildConfiguration'], 'debug')
 
   - task: PublishBuildArtifacts@1

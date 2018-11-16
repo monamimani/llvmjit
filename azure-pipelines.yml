@@ -43,6 +43,21 @@ jobs:
       CMake --build .\$(BuidDir) --target install
     displayName: CMake Gen-Build-Install
 
+  - powershell: |
+      $libFileList = @(Get-Childitem -Path ".//install" -Recurse -file -filter "*.lib")
+      $pdbFileList = $libFileList | foreach {
+        [io.path]::ChangeExtension($_.name, "pdb")
+      } 
+      Write-Host $pdbFileList
+
+      $filePathList = $pdbFileList | foreach {
+        Get-ChildItem -Path ".//build" -Filter $_ -Recurse | % {$_.FullName}
+      }
+      Write-Host $filePathList
+
+      Copy-Item -Path $filePathList -Destination ".//install/lib"
+    condition: eq(variables['BuildConfiguration'], 'debug'))
+
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: $(Build.DefinitionName)_$(BuildConfiguration)_v$(Build.BuildId)'
     inputs:

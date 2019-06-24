@@ -21,7 +21,7 @@ jobs:
   timeoutInMinutes: 240
 
   pool:
-    vmImage: 'VS2017-Win2016'
+    vmImage: 'windows-2019'
 
   strategy:
     maxParallel: 2
@@ -36,7 +36,7 @@ jobs:
     submodules: true
 
   - script: |
-      call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+      call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
       set cc=cl
       set cxx=cl
       CMake -GNinja -H.\llvm -B.\$(BuidDir) -DCMAKE_INSTALL_PREFIX=$(Build.BinariesDirectory) -DCMAKE_BUILD_TYPE=$(BuildConfiguration) -DLLVM_TARGETS_TO_BUILD=X86 -DLLVM_ABI_BREAKING_CHECKS=FORCE_OFF -DLLVM_ENABLE_WARNINGS=OFF -DLLVM_ENABLE_CXX1Z=ON -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_TOOLS=OFF -DLLVM_ENABLE_PDB=ON

@@ -105,6 +105,7 @@ jobs:
       dir /s /b /a:d
       cd $(System.ArtifactsDirectory)
       dir /s /b /a:d
+      type "D:\a\1\b\debug\llvmjit-CI_debug_v276\include\llvm\ExecutionEngine\Orc\LLJIT.h"
 
   - script: |
       robocopy $(ArtifactPathRelease)/include $(System.ArtifactsDirectory)/llvmJit/include /s

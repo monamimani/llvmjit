@@ -58,6 +58,9 @@ jobs:
       Copy-Item -Path $filePathList -Destination "$(Build.BinariesDirectory)/lib"
     condition: eq(variables['BuildConfiguration'], 'debug')
 
+  - script: |
+      type "$(Build.BinariesDirectory)\include\llvm\ExecutionEngine\Orc\LLJIT.h"
+
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: $(Build.DefinitionName)_$(BuildConfiguration)_v$(Build.BuildId)'
     inputs:

@@ -58,9 +58,6 @@ jobs:
       Copy-Item -Path $filePathList -Destination "$(Build.BinariesDirectory)/lib"
     condition: eq(variables['BuildConfiguration'], 'debug')
 
-  - script: |
-      type "$(Build.BinariesDirectory)\include\llvm\ExecutionEngine\Orc\LLJIT.h"
-
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: $(Build.DefinitionName)_$(BuildConfiguration)_v$(Build.BuildId)'
     inputs:
@@ -80,15 +77,15 @@ jobs:
   - checkout: none
     submodules: true
 
-  - script: |
-      echo $(Build.BinariesDirectory)/debug
-      echo $(Build.BinariesDirectory)/release
-      echo $(ArtifactPathRelease)
-      echo $(ArtifactPathDebug)
-      cd $(Build.BinariesDirectory)
-      dir /s /b /a:d
-      cd $(System.ArtifactsDirectory)
-      dir /s /b /a:d
+  # - script: |
+  #     echo $(Build.BinariesDirectory)/debug
+  #     echo $(Build.BinariesDirectory)/release
+  #     echo $(ArtifactPathRelease)
+  #     echo $(ArtifactPathDebug)
+  #     cd $(Build.BinariesDirectory)
+  #     dir /s /b /a:d
+  #     cd $(System.ArtifactsDirectory)
+  #     dir /s /b /a:d
 
   - task: DownloadBuildArtifacts@0
     displayName: 'Download Build Artifacts Debug'
@@ -103,12 +100,11 @@ jobs:
       artifactName: '$(Build.DefinitionName)_release_v$(Build.BuildId)'
       downloadPath: '$(Build.BinariesDirectory)/release'
 
-  - script: |
-      cd $(Build.BinariesDirectory)
-      dir /s /b /a:d
-      cd $(System.ArtifactsDirectory)
-      dir /s /b /a:d
-      type "D:\a\1\b\debug\llvmjit-CI_debug_v276\include\llvm\ExecutionEngine\Orc\LLJIT.h"
+  # - script: |
+  #     cd $(Build.BinariesDirectory)
+  #     dir /s /b /a:d
+  #     cd $(System.ArtifactsDirectory)
+  #     dir /s /b /a:d
 
   - script: |
       robocopy $(ArtifactPathRelease)/include $(System.ArtifactsDirectory)/llvmJit/include /s
@@ -119,9 +115,9 @@ jobs:
       IF %ERRORLEVEL% LSS 8 SET ERRORLEVEL = 0
     displayName: Copy files
 
-  - script: |
-      cd $(System.ArtifactsDirectory)
-      dir /s /b /a:d
+  # - script: |
+  #     cd $(System.ArtifactsDirectory)
+  #     dir /s /b /a:d
 
   - task: ArchiveFiles@2
     displayName: 'Archive $(System.ArtifactsDirectory)'
